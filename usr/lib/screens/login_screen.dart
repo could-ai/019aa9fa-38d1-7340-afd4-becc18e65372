@@ -37,10 +37,8 @@ class _LoginScreenState extends State<LoginScreen> {
         final AuthResponse res = await Supabase.instance.client.auth.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
-          // Important: Set redirect URL for Web/Mobile to avoid localhost issues
-          emailRedirectTo: kIsWeb 
-              ? Uri.base.origin 
-              : 'io.supabase.flutterquickstart://login-callback',
+          // Use null for mobile to rely on default site URL or manually configured deep links
+          emailRedirectTo: kIsWeb ? Uri.base.origin : null,
         );
 
         // Check if we have a session immediately (Email Confirm Disabled)
@@ -57,68 +55,113 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           // Email confirmation is required
           if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Verification Required'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'We have sent a verification email to your address.',
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'IMPORTANT:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const Text(
-                      'If the link in the email does not work (redirects to localhost), please go to your Supabase Console -> Authentication -> Providers -> Email and disable "Confirm email" for development.',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        _isLogin = true; // Switch to login mode
-                      });
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
+            _showVerificationDialog();
           }
         }
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = e.toString();
-        if (errorMessage.contains('Exception:')) {
-          errorMessage = errorMessage.replaceAll('Exception:', '').trim();
-        }
-        if (errorMessage.contains('Email not confirmed')) {
-          errorMessage = 'Please verify your email address before signing in.';
-        }
-        if (errorMessage.contains('Invalid login credentials')) {
-          errorMessage = 'Invalid email or password. If you haven\'t created an account, please Sign Up first.';
-        }
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _handleAuthError(e);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showVerificationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Verification Required'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'We have sent a verification email to your address.',
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Not receiving the email?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text('1. Check your Spam folder.'),
+              const SizedBox(height: 8),
+              const Text('2. If you are testing, we highly recommend disabling email confirmation:'),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Go to Supabase Console:',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    Text(
+                      'Authentication > Providers > Email',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Uncheck "Confirm email"',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'After disabling this setting, please delete this user from the Supabase dashboard and Sign Up again.',
+                style: TextStyle(fontSize: 12, color: Colors.redAccent),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _isLogin = true; // Switch to login mode
+              });
+            },
+            child: const Text('I Understand'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleAuthError(Object e) {
+    String errorMessage = e.toString();
+    if (errorMessage.contains('Exception:')) {
+      errorMessage = errorMessage.replaceAll('Exception:', '').trim();
+    }
+    if (errorMessage.contains('Email not confirmed')) {
+      errorMessage = 'Please verify your email address before signing in.';
+    }
+    if (errorMessage.contains('Invalid login credentials')) {
+      errorMessage = 'Invalid email or password.';
+    }
+    if (errorMessage.contains('User already registered')) {
+      errorMessage = 'This email is already registered. Please sign in.';
+    }
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
