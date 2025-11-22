@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // 1. Top Header Row: Logo (Left) | Add & Settings (Right)
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 16, 8),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
               child: Row(
                 children: [
                   // Logo / Brand Area
@@ -140,26 +140,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // 2. Large Search Bar (Separate Row)
+            // Using a standard TextField with filled decoration to avoid rendering issues
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
               child: Container(
-                height: 60,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
                 child: TextField(
                   controller: _searchController,
-                  textAlignVertical: TextAlignVertical.center,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     color: isDark ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.w500,
                   ),
@@ -167,22 +165,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     hintText: 'Search passwords...',
                     hintStyle: TextStyle(
                       color: isDark ? Colors.grey[500] : Colors.grey[400],
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
                     prefixIcon: Padding(
-                      padding: const EdgeInsets.only(left: 24, right: 16),
+                      padding: const EdgeInsets.only(left: 20, right: 12),
                       child: Icon(
                         Icons.search_rounded,
                         color: isDark ? Colors.grey[500] : Colors.grey[400],
-                        size: 28,
+                        size: 24,
                       ),
                     ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                    isDense: true,
+                    filled: true,
+                    fillColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide(
+                        color: primaryColor.withOpacity(0.5),
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
               ),
@@ -353,7 +364,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      // Removed FloatingActionButton as requested (moved to top right)
     );
   }
 }
