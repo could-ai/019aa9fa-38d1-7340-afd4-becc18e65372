@@ -19,6 +19,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Dismiss keyboard
+    FocusScope.of(context).unfocus();
+
     setState(() => _isLoading = true);
 
     try {
@@ -27,21 +30,54 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
+        // Navigation is handled by AuthWrapper in main.dart listening to auth state changes
       } else {
         await Supabase.instance.client.auth.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
+        
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Check your email to verify your account')),
+          // Show a dialog for registration success to make it very clear
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Account Created'),
+              content: const Text(
+                'Please check your email to verify your account before signing in.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _isLogin = true; // Switch to login mode
+                    });
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
           );
         }
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = e.toString();
+        // Clean up common error messages
+        if (errorMessage.contains('Exception:')) {
+          errorMessage = errorMessage.replaceAll('Exception:', '').trim();
+        }
+        if (errorMessage.contains('Email not confirmed')) {
+          errorMessage = 'Please verify your email address before signing in.';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } finally {
@@ -142,7 +178,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: _isLoading
-                        ? const CircularProgressIndicator()
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
                         : Text(_isLogin ? 'Sign In' : 'Sign Up'),
                   ),
                   const SizedBox(height: 16),
