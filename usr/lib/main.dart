@@ -119,10 +119,15 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
-        // Use the session from the snapshot if available, otherwise check currentSession
-        // This ensures we react to auth changes (login/logout) immediately
-        final session = snapshot.data?.session ?? Supabase.instance.client.auth.currentSession;
+        if (snapshot.connectionState == ConnectionState.waiting && 
+            Supabase.instance.client.auth.currentSession == null) {
+          // Show a loading screen while checking initial auth state
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
         
+        final session = snapshot.data?.session ?? Supabase.instance.client.auth.currentSession;
         return session != null ? const HomeScreen() : const LoginScreen();
       },
     );
