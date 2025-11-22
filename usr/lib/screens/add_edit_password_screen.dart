@@ -65,6 +65,11 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+
       final entryData = {
         'title': _titleController.text,
         'username': _usernameController.text,
@@ -72,7 +77,7 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
         'url': _urlController.text.isEmpty ? null : _urlController.text,
         'notes': _notesController.text.isEmpty ? null : _notesController.text,
         'category_color': _selectedColor.value.toRadixString(16).padLeft(8, '0'),
-        'user_id': Supabase.instance.client.auth.currentUser!.id,
+        'user_id': user.id,
       };
 
       if (widget.entry != null) {
