@@ -24,13 +24,17 @@ class PasswordEntry {
   factory PasswordEntry.fromJson(Map<String, dynamic> json) {
     return PasswordEntry(
       id: json['id'].toString(),
-      title: json['title'],
-      username: json['username'],
-      password: json['password'],
+      title: json['title'] ?? 'Untitled',
+      username: json['username'] ?? '',
+      password: json['password'] ?? '',
       url: json['url'],
       notes: json['notes'],
-      createdAt: DateTime.parse(json['created_at']),
-      categoryColor: Color(int.parse(json['category_color'], radix: 16)),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at']) 
+          : DateTime.now(),
+      categoryColor: json['category_color'] != null
+          ? Color(int.parse(json['category_color'], radix: 16))
+          : Colors.blue,
     );
   }
 
