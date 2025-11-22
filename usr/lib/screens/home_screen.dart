@@ -74,79 +74,72 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Modern Header with Pill-shaped Search Bar
-            Container(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-              color: Colors.transparent,
+            // Modern Header with Search Bar and Settings
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      height: 60, // Taller search bar
+                      height: 56,
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? Theme.of(context).colorScheme.surfaceContainerHighest
-                            : const Color(0xFFE8E8E8), // Slightly darker grey for contrast
-                        borderRadius: BorderRadius.circular(30), // Fully rounded pill shape
+                        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                        borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                            spreadRadius: 1,
+                            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
+                      clipBehavior: Clip.hardEdge,
                       child: TextField(
                         controller: _searchController,
                         textAlignVertical: TextAlignVertical.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Search passwords...',
                           hintStyle: TextStyle(
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.grey[400] : Colors.grey[500],
+                            fontSize: 16,
                           ),
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.only(left: 20, right: 12),
-                            child: Icon(
-                              Icons.search_rounded,
-                              color: isDark ? Colors.grey[400] : Colors.grey[700],
-                              size: 28,
-                            ),
+                          prefixIcon: Icon(
+                            Icons.search_rounded,
+                            color: isDark ? Colors.grey[400] : Colors.grey[500],
+                            size: 24,
                           ),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                          isCollapsed: true, // Helps with vertical alignment
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
                         ),
-                        style: const TextStyle(fontSize: 18),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  // Circular Settings Button
+                  const SizedBox(width: 12),
                   Container(
-                    width: 60,
-                    height: 60,
+                    width: 56,
+                    height: 56,
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? Theme.of(context).colorScheme.surfaceContainerHighest
-                          : Colors.white,
+                      color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                          spreadRadius: 1,
+                          color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.settings_outlined, size: 28),
-                      color: isDark ? Colors.white : Colors.grey[800],
+                      icon: const Icon(Icons.settings_outlined),
+                      color: isDark ? Colors.white : Colors.grey[700],
+                      iconSize: 24,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -172,22 +165,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             _searchQuery.isEmpty
                                 ? Icons.lock_open_rounded
                                 : Icons.search_off_rounded,
-                            size: 80,
-                            color: Colors.grey[350],
+                            size: 64,
+                            color: isDark ? Colors.grey[700] : Colors.grey[300],
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                           Text(
                             _searchQuery.isEmpty ? 'No passwords yet' : 'No results found',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: Colors.grey[500],
-                                  fontWeight: FontWeight.w500,
                                 ),
                           ),
                         ],
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       itemCount: entries.length,
                       itemBuilder: (context, index) {
                         final entry = entries[index];
@@ -195,16 +187,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(20),
                             boxShadow: [
-                              if (!isDark)
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 4),
-                                ),
+                              BoxShadow(
+                                color: Colors.black.withOpacity(isDark ? 0.1 : 0.04),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
                             ],
                           ),
+                          clipBehavior: Clip.hardEdge,
                           child: InkWell(
                             onTap: () {
                               Navigator.push(
@@ -215,114 +207,105 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               );
                             },
-                            borderRadius: BorderRadius.circular(24),
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            child: IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Row(
-                                    children: [
-                                      // Small Color Tag/Label
-                                      Container(
-                                        width: 6,
-                                        height: 48,
-                                        decoration: BoxDecoration(
-                                          color: entry.categoryColor,
-                                          borderRadius: BorderRadius.circular(3),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      // Title and Username
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              entry.title,
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
+                                  // Color Tag Strip
+                                  Container(
+                                    width: 6,
+                                    color: entry.categoryColor,
+                                  ),
+                                  // Content
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      entry.title,
+                                                      style: TextStyle(
+                                                        fontSize: 17,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: isDark
+                                                            ? Colors.white
+                                                            : Colors.black87,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      entry.username,
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              // Copy Button
+                                              IconButton(
+                                                icon: const Icon(Icons.copy_rounded, size: 20),
+                                                color: Colors.grey[500],
+                                                tooltip: 'Copy password',
+                                                onPressed: () =>
+                                                    _copyToClipboard(entry.password, 'Password'),
+                                              ),
+                                            ],
+                                          ),
+                                          if (entry.url != null && entry.url!.isNotEmpty) ...[
+                                            const SizedBox(height: 12),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 6,
+                                              ),
+                                              decoration: BoxDecoration(
                                                 color: isDark
-                                                    ? Colors.white
-                                                    : Colors.black87,
+                                                    ? Colors.grey[850]
+                                                    : const Color(0xFFF5F7FA),
+                                                borderRadius: BorderRadius.circular(8),
                                               ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              entry.username,
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.grey[600],
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.link_rounded,
+                                                    size: 14,
+                                                    color: Colors.grey[500],
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Flexible(
+                                                    child: Text(
+                                                      entry.url!
+                                                          .replaceFirst(RegExp(r'^https?://'), '')
+                                                          .replaceAll(RegExp(r'/$'), ''),
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey[600],
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
-                                        ),
-                                      ),
-                                      // Modern Copy Button
-                                      Container(
-                                        width: 44,
-                                        height: 44,
-                                        decoration: BoxDecoration(
-                                          color: isDark
-                                              ? Colors.grey[800]
-                                              : const Color(0xFFF5F5F7),
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                        child: IconButton(
-                                          icon: const Icon(Icons.copy_rounded,
-                                              size: 22),
-                                          color: isDark
-                                              ? Colors.grey[400]
-                                              : Colors.grey[700],
-                                          tooltip: 'Copy password',
-                                          padding: EdgeInsets.zero,
-                                          onPressed: () =>
-                                              _copyToClipboard(entry.password, 'Password'),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  // URL Section (if exists)
-                                  if (entry.url != null && entry.url!.isNotEmpty) ...[
-                                    const SizedBox(height: 16),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 14,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? Colors.grey[850]
-                                            : const Color(0xFFF8F9FA),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.language_rounded,
-                                            size: 18,
-                                            color: Colors.grey[500],
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              entry.url!
-                                                  .replaceFirst(RegExp(r'^https?://'), ''),
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
                                         ],
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -344,9 +327,11 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         elevation: 4,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         label: const Text(
-          'Add',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          'Add New',
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
         icon: const Icon(Icons.add_rounded),
       ),
