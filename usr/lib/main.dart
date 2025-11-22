@@ -26,14 +26,34 @@ class PasswordManagerApp extends StatelessWidget {
               brightness: Brightness.light,
             ),
             useMaterial3: true,
-            scaffoldBackgroundColor: const Color(0xFFF5F7FA), // Light grey background like the image
+            scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+            cardColor: Colors.white,
             appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFFF5F7FA),
+              backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
+              elevation: 0,
             ),
-            inputDecorationTheme: const InputDecorationTheme(
+            inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              border: OutlineInputBorder(),
+              fillColor: const Color(0xFFF5F5F7),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black.withOpacity(0.06)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+              ),
+            ),
+            floatingActionButtonTheme: FloatingActionButtonThemeData(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
           darkTheme: ThemeData(
@@ -42,9 +62,33 @@ class PasswordManagerApp extends StatelessWidget {
               brightness: Brightness.dark,
             ),
             useMaterial3: true,
-            inputDecorationTheme: const InputDecorationTheme(
+            scaffoldBackgroundColor: const Color(0xFF121212),
+            cardColor: const Color(0xFF1E1E1E),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF121212),
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+            ),
+            inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.deepPurpleAccent, width: 2),
+              ),
+            ),
+            floatingActionButtonTheme: FloatingActionButtonThemeData(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
           themeMode: themeService.themeMode,

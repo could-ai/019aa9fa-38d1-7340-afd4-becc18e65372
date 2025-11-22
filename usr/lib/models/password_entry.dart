@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class PasswordEntry {
   final String id;
   final String title;
@@ -6,6 +8,7 @@ class PasswordEntry {
   final String? url;
   final String? notes;
   final DateTime createdAt;
+  final Color categoryColor;
 
   PasswordEntry({
     required this.id,
@@ -15,7 +18,8 @@ class PasswordEntry {
     this.url,
     this.notes,
     required this.createdAt,
-  });
+    Color? categoryColor,
+  }) : categoryColor = categoryColor ?? Colors.blue;
 
   PasswordEntry copyWith({
     String? id,
@@ -25,6 +29,7 @@ class PasswordEntry {
     String? url,
     String? notes,
     DateTime? createdAt,
+    Color? categoryColor,
   }) {
     return PasswordEntry(
       id: id ?? this.id,
@@ -34,6 +39,7 @@ class PasswordEntry {
       url: url ?? this.url,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
+      categoryColor: categoryColor ?? this.categoryColor,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/password_entry.dart';
 
 class MockDataService extends ChangeNotifier {
@@ -15,6 +16,7 @@ class MockDataService extends ChangeNotifier {
       url: 'https://google.com',
       notes: 'Main personal email',
       createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      categoryColor: Colors.red,
     ),
     PasswordEntry(
       id: '2',
@@ -24,6 +26,7 @@ class MockDataService extends ChangeNotifier {
       url: 'https://netflix.com',
       notes: 'Family plan',
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      categoryColor: Colors.orange,
     ),
     PasswordEntry(
       id: '3',
@@ -32,6 +35,7 @@ class MockDataService extends ChangeNotifier {
       password: 'gh_token_789',
       url: 'https://github.com',
       createdAt: DateTime.now(),
+      categoryColor: Colors.purple,
     ),
   ];
 

@@ -68,66 +68,94 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final entries = _filteredEntries;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            // Custom Header with Search Bar and Settings
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            // Modern Header with Beautiful Search Bar and Settings
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              decoration: BoxDecoration(
+                color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
+                boxShadow: [
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                ],
+              ),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      height: 50,
+                      height: 56,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? const Color(0xFFE8EAF6) // Light purple/grey
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(25),
+                        color: isDark
+                            ? Theme.of(context).colorScheme.surfaceContainerHighest
+                            : const Color(0xFFF5F5F7),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.transparent
+                              : Colors.black.withOpacity(0.06),
+                          width: 1,
+                        ),
                       ),
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
                           hintText: '搜索账号...',
                           hintStyle: TextStyle(
-                            color: Theme.of(context).brightness == Brightness.light
-                                ? Colors.grey[600]
-                                : Colors.grey[400],
+                            color: isDark ? Colors.grey[400] : Colors.grey[500],
+                            fontSize: 16,
                           ),
                           prefixIcon: Icon(
-                            Icons.search,
-                            color: Theme.of(context).brightness == Brightness.light
-                                ? Colors.grey[700]
-                                : Colors.grey[400],
+                            Icons.search_rounded,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            size: 24,
                           ),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 13.5),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 16,
+                          ),
                         ),
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Container(
+                    width: 56,
+                    height: 56,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.surfaceContainerHighest,
-                      shape: BoxShape.circle,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.surfaceContainerHighest
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.transparent
+                            : Colors.black.withOpacity(0.06),
+                        width: 1,
+                      ),
                       boxShadow: [
-                        if (Theme.of(context).brightness == Brightness.light)
+                        if (!isDark)
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 4,
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
                       ],
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.settings_outlined),
+                      icon: const Icon(Icons.settings_outlined, size: 24),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -141,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            
+
             // List Content
             Expanded(
               child: entries.isEmpty
@@ -150,26 +178,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _searchQuery.isEmpty 
-                                ? Icons.lock_open_rounded 
+                            _searchQuery.isEmpty
+                                ? Icons.lock_open_rounded
                                 : Icons.search_off_rounded,
-                            size: 64,
-                            color: Colors.grey[400],
+                            size: 80,
+                            color: Colors.grey[350],
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
                           Text(
-                            _searchQuery.isEmpty 
-                                ? '暂无密码' 
-                                : '未找到相关结果',
+                            _searchQuery.isEmpty ? '暂无密码' : '未找到相关结果',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Colors.grey[600],
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w500,
                                 ),
                           ),
                         ],
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       itemCount: entries.length,
                       itemBuilder: (context, index) {
                         final entry = entries[index];
@@ -177,12 +204,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.transparent
+                                  : Colors.black.withOpacity(0.06),
+                              width: 1,
+                            ),
                             boxShadow: [
-                              if (Theme.of(context).brightness == Brightness.light)
+                              if (!isDark)
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
-                                  blurRadius: 8,
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 10,
                                   offset: const Offset(0, 2),
                                 ),
                             ],
@@ -192,32 +225,35 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AddEditPasswordScreen(entry: entry),
+                                  builder: (context) =>
+                                      AddEditPasswordScreen(entry: entry),
                                 ),
                               );
                             },
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(20),
                             child: Padding(
-                              padding: const EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.all(18.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     children: [
-                                      // Icon/Avatar
+                                      // Modern Color Icon/Avatar
                                       Container(
-                                        width: 48,
-                                        height: 48,
+                                        width: 52,
+                                        height: 52,
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.7),
-                                          borderRadius: BorderRadius.circular(12),
+                                          color: entry.categoryColor.withOpacity(0.15),
+                                          borderRadius: BorderRadius.circular(14),
                                         ),
                                         alignment: Alignment.center,
                                         child: Text(
-                                          entry.title.isNotEmpty ? entry.title[0].toUpperCase() : '?',
+                                          entry.title.isNotEmpty
+                                              ? entry.title[0].toUpperCase()
+                                              : '?',
                                           style: TextStyle(
-                                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                            fontSize: 20,
+                                            color: entry.categoryColor,
+                                            fontSize: 22,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -226,16 +262,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // Title and Username
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               entry.title,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
+                                              style: TextStyle(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.w600,
+                                                color: isDark
+                                                    ? Colors.white
+                                                    : Colors.black87,
                                               ),
                                             ),
-                                            const SizedBox(height: 4),
+                                            const SizedBox(height: 5),
                                             Text(
                                               entry.username,
                                               style: TextStyle(
@@ -247,37 +287,65 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ],
                                         ),
                                       ),
-                                      // Copy Button
-                                      IconButton(
-                                        icon: const Icon(Icons.copy_rounded, size: 20),
-                                        color: Colors.grey[600],
-                                        tooltip: '复制密码',
-                                        onPressed: () => _copyToClipboard(entry.password, '密码'),
+                                      // Modern Copy Button
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? Colors.grey[800]
+                                              : Colors.grey[100],
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.copy_rounded,
+                                              size: 20),
+                                          color: isDark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[700],
+                                          tooltip: '复制密码',
+                                          padding: EdgeInsets.zero,
+                                          onPressed: () =>
+                                              _copyToClipboard(entry.password, '密码'),
+                                        ),
                                       ),
                                     ],
                                   ),
                                   // URL Section (if exists)
-                                  if (entry.url != null && entry.url!.isNotEmpty) ...[
-                                    const SizedBox(height: 12),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.link_rounded, 
-                                          size: 16, 
-                                          color: Colors.grey[400]
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            entry.url!.replaceFirst(RegExp(r'^https?://'), ''),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[500],
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
+                                  if (entry.url != null && entry.url!.isNotEmpty) ..[
+                                    const SizedBox(height: 14),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? Colors.grey[850]
+                                            : Colors.grey[50],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.language_rounded,
+                                            size: 16,
+                                            color: Colors.grey[500],
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              entry.url!
+                                                  .replaceFirst(RegExp(r'^https?://'), ''),
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey[600],
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -300,8 +368,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
-        label: const Text('添加'),
-        icon: const Icon(Icons.add),
+        elevation: 4,
+        label: const Text(
+          '添加',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        ),
+        icon: const Icon(Icons.add_rounded),
       ),
     );
   }
