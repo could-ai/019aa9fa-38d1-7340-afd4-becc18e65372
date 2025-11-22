@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Clipboard.setData(ClipboardData(text: value));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$label 已复制到剪贴板'),
+        content: Text('$label copied to clipboard'),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
       ),
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          hintText: '搜索账号...',
+                          hintText: 'Search passwords...',
                           hintStyle: TextStyle(
                             color: isDark ? Colors.grey[400] : Colors.grey[500],
                             fontSize: 16,
@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            _searchQuery.isEmpty ? '暂无密码' : '未找到相关结果',
+                            _searchQuery.isEmpty ? 'No passwords yet' : 'No results found',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   color: Colors.grey[500],
                                   fontWeight: FontWeight.w500,
@@ -238,24 +238,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      // Modern Color Icon/Avatar
+                                      // Small Color Tag/Label
                                       Container(
-                                        width: 52,
+                                        width: 8,
                                         height: 52,
                                         decoration: BoxDecoration(
-                                          color: entry.categoryColor.withOpacity(0.15),
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          entry.title.isNotEmpty
-                                              ? entry.title[0].toUpperCase()
-                                              : '?',
-                                          style: TextStyle(
-                                            color: entry.categoryColor,
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          color: entry.categoryColor,
+                                          borderRadius: BorderRadius.circular(4),
                                         ),
                                       ),
                                       const SizedBox(width: 16),
@@ -303,10 +292,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: isDark
                                               ? Colors.grey[400]
                                               : Colors.grey[700],
-                                          tooltip: '复制密码',
+                                          tooltip: 'Copy password',
                                           padding: EdgeInsets.zero,
                                           onPressed: () =>
-                                              _copyToClipboard(entry.password, '密码'),
+                                              _copyToClipboard(entry.password, 'Password'),
                                         ),
                                       ),
                                     ],
@@ -370,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         elevation: 4,
         label: const Text(
-          '添加',
+          'Add',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
         icon: const Icon(Icons.add_rounded),

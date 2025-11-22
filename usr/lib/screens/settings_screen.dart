@@ -10,14 +10,14 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('设置'),
+        title: const Text('Settings'),
       ),
       body: ListView(
         children: [
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              '外观',
+              'APPEARANCE',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -31,7 +31,7 @@ class SettingsScreen extends StatelessWidget {
               return Column(
                 children: [
                   RadioListTile<ThemeMode>(
-                    title: const Text('跟随系统'),
+                    title: const Text('System Default'),
                     value: ThemeMode.system,
                     groupValue: themeService.themeMode,
                     onChanged: (value) {
@@ -39,7 +39,7 @@ class SettingsScreen extends StatelessWidget {
                     },
                   ),
                   RadioListTile<ThemeMode>(
-                    title: const Text('浅色模式'),
+                    title: const Text('Light Mode'),
                     value: ThemeMode.light,
                     groupValue: themeService.themeMode,
                     onChanged: (value) {
@@ -47,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
                     },
                   ),
                   RadioListTile<ThemeMode>(
-                    title: const Text('深色模式'),
+                    title: const Text('Dark Mode'),
                     value: ThemeMode.dark,
                     groupValue: themeService.themeMode,
                     onChanged: (value) {

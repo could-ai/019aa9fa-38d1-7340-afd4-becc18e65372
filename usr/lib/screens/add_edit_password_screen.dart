@@ -89,12 +89,12 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('删除密码？'),
-          content: const Text('确定要删除这个密码吗？此操作无法撤销。'),
+          title: const Text('Delete Password?'),
+          content: const Text('Are you sure you want to delete this password? This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('取消'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -103,7 +103,7 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
                 Navigator.pop(context); // Close screen
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('删除'),
+              child: const Text('Delete'),
             ),
           ],
         ),
@@ -133,18 +133,18 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? '编辑账号' : '新增账号'),
+        title: Text(isEditing ? 'Edit Password' : 'Add Password'),
         actions: [
           if (isEditing)
             IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: _deleteEntry,
-              tooltip: '删除',
+              tooltip: 'Delete',
             ),
           TextButton(
             onPressed: _saveEntry,
             child: const Text(
-              '保存',
+              'Save',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
@@ -158,9 +158,9 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Color Selection Section
+              // Color Selection Section - Smaller Tags
               Text(
-                '选择分类颜色',
+                'Category Color',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -169,7 +169,7 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
               ),
               const SizedBox(height: 12),
               SizedBox(
-                height: 60,
+                height: 40,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: _colorOptions.length,
@@ -183,8 +183,8 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
                         });
                       },
                       child: Container(
-                        width: 60,
-                        height: 60,
+                        width: 40,
+                        height: 40,
                         margin: const EdgeInsets.only(right: 12),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -193,12 +193,12 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
                             color: isSelected
                                 ? (isDark ? Colors.white : Colors.black87)
                                 : Colors.transparent,
-                            width: 3,
+                            width: 2.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: color.withOpacity(0.4),
-                              blurRadius: 8,
+                              color: color.withOpacity(0.3),
+                              blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -207,7 +207,7 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
                             ? const Icon(
                                 Icons.check_rounded,
                                 color: Colors.white,
-                                size: 32,
+                                size: 20,
                               )
                             : null,
                       ),
@@ -221,8 +221,8 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  labelText: '名称 (如 Google, GitHub)',
-                  hintText: '输入账号名称',
+                  labelText: 'Name (e.g., Google, GitHub)',
+                  hintText: 'Enter account name',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -232,7 +232,7 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return '请输入名称';
+                    return 'Please enter a name';
                   }
                   return null;
                 },
@@ -243,8 +243,8 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
               TextFormField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  labelText: '用户名 / 邮箱',
-                  hintText: '输入用户名或邮箱',
+                  labelText: 'Username / Email',
+                  hintText: 'Enter username or email',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -260,8 +260,8 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
                 controller: _passwordController,
                 obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
-                  labelText: '密码',
-                  hintText: '输入密码',
+                  labelText: 'Password',
+                  hintText: 'Enter password',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -285,14 +285,14 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
                       IconButton(
                         icon: const Icon(Icons.refresh_rounded),
                         onPressed: _generatePassword,
-                        tooltip: '生成密码',
+                        tooltip: 'Generate password',
                       ),
                     ],
                   ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return '请输入密码';
+                    return 'Please enter a password';
                   }
                   return null;
                 },
@@ -303,7 +303,7 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
               TextFormField(
                 controller: _urlController,
                 decoration: InputDecoration(
-                  labelText: '网站 (网址)',
+                  labelText: 'Website (URL)',
                   hintText: 'https://example.com',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -319,8 +319,8 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
               TextFormField(
                 controller: _notesController,
                 decoration: InputDecoration(
-                  labelText: '备注 (可选)',
-                  hintText: '添加备注信息',
+                  labelText: 'Notes (optional)',
+                  hintText: 'Add any notes',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -395,7 +395,7 @@ class _PasswordGeneratorSheetState extends State<PasswordGeneratorSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '生成密码',
+                'Generate Password',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -439,7 +439,7 @@ class _PasswordGeneratorSheetState extends State<PasswordGeneratorSheet> {
           Row(
             children: [
               Text(
-                '长度: ',
+                'Length: ',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -479,7 +479,7 @@ class _PasswordGeneratorSheetState extends State<PasswordGeneratorSheet> {
           ),
           const SizedBox(height: 8),
           SwitchListTile(
-            title: const Text('字母 (A-Z, a-z)'),
+            title: const Text('Letters (A-Z, a-z)'),
             value: _useLetters,
             onChanged: (value) {
               setState(() => _useLetters = value);
@@ -489,7 +489,7 @@ class _PasswordGeneratorSheetState extends State<PasswordGeneratorSheet> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           SwitchListTile(
-            title: const Text('数字 (0-9)'),
+            title: const Text('Numbers (0-9)'),
             value: _useNumbers,
             onChanged: (value) {
               setState(() => _useNumbers = value);
@@ -499,7 +499,7 @@ class _PasswordGeneratorSheetState extends State<PasswordGeneratorSheet> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           SwitchListTile(
-            title: const Text('特殊字符 (!@#...)'),
+            title: const Text('Special Characters (!@#...)'),
             value: _useSpecial,
             onChanged: (value) {
               setState(() => _useSpecial = value);
@@ -521,7 +521,7 @@ class _PasswordGeneratorSheetState extends State<PasswordGeneratorSheet> {
               ),
             ),
             child: const Text(
-              '使用此密码',
+              'Use This Password',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
