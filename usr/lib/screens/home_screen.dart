@@ -312,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ],
                                   ),
                                   // URL Section (if exists)
-                                  if (entry.url != null && entry.url!.isNotEmpty) ..[
+                                  if (entry.url != null && entry.url!.isNotEmpty) ...[
                                     const SizedBox(height: 14),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
