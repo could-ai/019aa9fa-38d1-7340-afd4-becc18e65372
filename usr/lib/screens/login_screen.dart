@@ -104,6 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
         if (errorMessage.contains('Email not confirmed')) {
           errorMessage = 'Please verify your email address before signing in.';
         }
+        if (errorMessage.contains('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. If you haven\'t created an account, please Sign Up first.';
+        }
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -122,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
@@ -146,12 +149,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    _isLogin ? 'Sign in to access your passwords' : 'Create your account',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                    textAlign: TextAlign.center,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Text(
+                      _isLogin ? 'Sign in to access your passwords' : 'Create a new account',
+                      key: ValueKey(_isLogin),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                   const SizedBox(height: 48),
                   TextFormField(
@@ -209,6 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _isLoading ? null : _submit,
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: _isLogin ? null : Colors.deepPurpleAccent,
                     ),
                     child: _isLoading
                         ? const SizedBox(
@@ -219,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : Text(_isLogin ? 'Sign In' : 'Sign Up'),
+                        : Text(_isLogin ? 'Sign In' : 'Create Account'),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
