@@ -74,88 +74,79 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Modern Header with Beautiful Search Bar and Settings
+            // Modern Header with Pill-shaped Search Bar
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-              decoration: BoxDecoration(
-                color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
-                boxShadow: [
-                  if (!isDark)
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                ],
-              ),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+              color: Colors.transparent,
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      height: 56,
+                      height: 60, // Taller search bar
                       decoration: BoxDecoration(
                         color: isDark
                             ? Theme.of(context).colorScheme.surfaceContainerHighest
-                            : const Color(0xFFF5F5F7),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDark
-                              ? Colors.transparent
-                              : Colors.black.withOpacity(0.06),
-                          width: 1,
-                        ),
+                            : const Color(0xFFE8E8E8), // Slightly darker grey for contrast
+                        borderRadius: BorderRadius.circular(30), // Fully rounded pill shape
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
                       child: TextField(
                         controller: _searchController,
+                        textAlignVertical: TextAlignVertical.center,
                         decoration: InputDecoration(
                           hintText: 'Search passwords...',
                           hintStyle: TextStyle(
-                            color: isDark ? Colors.grey[400] : Colors.grey[500],
-                            fontSize: 16,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search_rounded,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
-                            size: 24,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            child: Icon(
+                              Icons.search_rounded,
+                              color: isDark ? Colors.grey[400] : Colors.grey[700],
+                              size: 28,
+                            ),
                           ),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                          isCollapsed: true, // Helps with vertical alignment
                         ),
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 18),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
+                  // Circular Settings Button
                   Container(
-                    width: 56,
-                    height: 56,
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
                       color: isDark
                           ? Theme.of(context).colorScheme.surfaceContainerHighest
                           : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.transparent
-                            : Colors.black.withOpacity(0.06),
-                        width: 1,
-                      ),
+                      shape: BoxShape.circle,
                       boxShadow: [
-                        if (!isDark)
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                          spreadRadius: 1,
+                        ),
                       ],
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.settings_outlined, size: 24),
+                      icon: const Icon(Icons.settings_outlined, size: 28),
+                      color: isDark ? Colors.white : Colors.grey[800],
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -196,27 +187,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                       itemCount: entries.length,
                       itemBuilder: (context, index) {
                         final entry = entries[index];
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.transparent
-                                  : Colors.black.withOpacity(0.06),
-                              width: 1,
-                            ),
+                            borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               if (!isDark)
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
+                                  color: Colors.black.withOpacity(0.06),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 4),
                                 ),
                             ],
                           ),
@@ -230,9 +215,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               );
                             },
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(24),
                             child: Padding(
-                              padding: const EdgeInsets.all(18.0),
+                              padding: const EdgeInsets.all(20.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -240,11 +225,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       // Small Color Tag/Label
                                       Container(
-                                        width: 8,
-                                        height: 52,
+                                        width: 6,
+                                        height: 48,
                                         decoration: BoxDecoration(
                                           color: entry.categoryColor,
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(3),
                                         ),
                                       ),
                                       const SizedBox(width: 16),
@@ -257,18 +242,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                             Text(
                                               entry.title,
                                               style: TextStyle(
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.w600,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
                                                 color: isDark
                                                     ? Colors.white
                                                     : Colors.black87,
                                               ),
                                             ),
-                                            const SizedBox(height: 5),
+                                            const SizedBox(height: 4),
                                             Text(
                                               entry.username,
                                               style: TextStyle(
-                                                fontSize: 14,
+                                                fontSize: 15,
                                                 color: Colors.grey[600],
                                               ),
                                               overflow: TextOverflow.ellipsis,
@@ -278,17 +263,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       // Modern Copy Button
                                       Container(
-                                        width: 40,
-                                        height: 40,
+                                        width: 44,
+                                        height: 44,
                                         decoration: BoxDecoration(
                                           color: isDark
                                               ? Colors.grey[800]
-                                              : Colors.grey[100],
-                                          borderRadius: BorderRadius.circular(12),
+                                              : const Color(0xFFF5F5F7),
+                                          borderRadius: BorderRadius.circular(14),
                                         ),
                                         child: IconButton(
                                           icon: const Icon(Icons.copy_rounded,
-                                              size: 20),
+                                              size: 22),
                                           color: isDark
                                               ? Colors.grey[400]
                                               : Colors.grey[700],
@@ -302,33 +287,34 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   // URL Section (if exists)
                                   if (entry.url != null && entry.url!.isNotEmpty) ...[
-                                    const SizedBox(height: 14),
+                                    const SizedBox(height: 16),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
+                                        horizontal: 14,
+                                        vertical: 10,
                                       ),
                                       decoration: BoxDecoration(
                                         color: isDark
                                             ? Colors.grey[850]
-                                            : Colors.grey[50],
-                                        borderRadius: BorderRadius.circular(8),
+                                            : const Color(0xFFF8F9FA),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Row(
                                         children: [
                                           Icon(
                                             Icons.language_rounded,
-                                            size: 16,
+                                            size: 18,
                                             color: Colors.grey[500],
                                           ),
-                                          const SizedBox(width: 6),
+                                          const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               entry.url!
                                                   .replaceFirst(RegExp(r'^https?://'), ''),
                                               style: TextStyle(
-                                                fontSize: 13,
+                                                fontSize: 14,
                                                 color: Colors.grey[600],
+                                                fontWeight: FontWeight.w500,
                                               ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
