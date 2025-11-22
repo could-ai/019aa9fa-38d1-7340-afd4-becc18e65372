@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -30,41 +31,73 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
-        // Navigation is handled by AuthWrapper in main.dart listening to auth state changes
+        // Navigation is handled by AuthWrapper in main.dart
       } else {
-        await Supabase.instance.client.auth.signUp(
+        // Sign Up Logic
+        final AuthResponse res = await Supabase.instance.client.auth.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
+          // Important: Set redirect URL for Web/Mobile to avoid localhost issues
+          emailRedirectTo: kIsWeb 
+              ? Uri.base.origin 
+              : 'io.supabase.flutterquickstart://login-callback',
         );
-        
-        if (mounted) {
-          // Show a dialog for registration success to make it very clear
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Account Created'),
-              content: const Text(
-                'Please check your email to verify your account before signing in.',
+
+        // Check if we have a session immediately (Email Confirm Disabled)
+        if (res.session != null) {
+          if (mounted) {
+             ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Account created and logged in!'),
+                backgroundColor: Colors.green,
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _isLogin = true; // Switch to login mode
-                    });
-                  },
-                  child: const Text('OK'),
+            );
+          }
+          // AuthWrapper will handle navigation
+        } else {
+          // Email confirmation is required
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Verification Required'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'We have sent a verification email to your address.',
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'IMPORTANT:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Text(
+                      'If the link in the email does not work (redirects to localhost), please go to your Supabase Console -> Authentication -> Providers -> Email and disable "Confirm email" for development.',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _isLogin = true; // Switch to login mode
+                      });
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          }
         }
       }
     } catch (e) {
       if (mounted) {
         String errorMessage = e.toString();
-        // Clean up common error messages
         if (errorMessage.contains('Exception:')) {
           errorMessage = errorMessage.replaceAll('Exception:', '').trim();
         }
