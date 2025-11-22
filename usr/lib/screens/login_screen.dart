@@ -73,57 +73,18 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Verification Required'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'We have sent a verification email to your address.',
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Not receiving the email?',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text('1. Check your Spam folder.'),
-              const SizedBox(height: 8),
-              const Text('2. If you are testing, we highly recommend disabling email confirmation:'),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Go to Supabase Console:',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                    ),
-                    Text(
-                      'Authentication > Providers > Email',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Uncheck "Confirm email"',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'After disabling this setting, please delete this user from the Supabase dashboard and Sign Up again.',
-                style: TextStyle(fontSize: 12, color: Colors.redAccent),
-              ),
-            ],
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'We have sent a verification email to ${_emailController.text.trim()}.',
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Please check your inbox (and spam folder) and click the link to verify your account before signing in.',
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -133,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 _isLogin = true; // Switch to login mode
               });
             },
-            child: const Text('I Understand'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -142,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleAuthError(Object e) {
     String errorMessage = e.toString();
+    // Clean up the error message for the user
     if (errorMessage.contains('Exception:')) {
       errorMessage = errorMessage.replaceAll('Exception:', '').trim();
     }
