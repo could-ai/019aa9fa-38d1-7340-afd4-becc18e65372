@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/password_entry.dart';
-import '../services/mock_data_service.dart';
 import '../utils/password_generator.dart';
 
 class AddEditPasswordScreen extends StatefulWidget {
@@ -22,8 +21,8 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
   final _notesController = TextEditingController();
 
   bool _isPasswordVisible = false;
-  final MockDataService _dataService = MockDataService();
   Color _selectedColor = Colors.blue;
+  bool _isLoading = false;
 
   // Predefined color palette
   final List<Color> _colorOptions = [
@@ -60,54 +59,82 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
     super.dispose();
   }
 
-  void _saveEntry() {
-    if (_formKey.currentState!.validate()) {
-      final entry = PasswordEntry(
-        id: widget.entry?.id ??
-            DateTime.now().millisecondsSinceEpoch.toString(),
-        title: _titleController.text,
-        username: _usernameController.text,
-        password: _passwordController.text,
-        url: _urlController.text.isEmpty ? null : _urlController.text,
-        notes: _notesController.text.isEmpty ? null : _notesController.text,
-        createdAt: widget.entry?.createdAt ?? DateTime.now(),
-        categoryColor: _selectedColor,
-      );
+  Future<void> _saveEntry() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final entryData = {
+        'title': _titleController.text,
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+        'url': _urlController.text.isEmpty ? null : _urlController.text,
+        'notes': _notesController.text.isEmpty ? null : _notesController.text,
+        'category_color': _selectedColor.value.toRadixString(16).padLeft(8, '0'),
+        'user_id': Supabase.instance.client.auth.currentUser!.id,
+      };
 
       if (widget.entry != null) {
-        _dataService.updateEntry(entry);
+        await Supabase.instance.client
+            .from('password_entries')
+            .update(entryData)
+            .eq('id', widget.entry!.id);
       } else {
-        _dataService.addEntry(entry);
+        await Supabase.instance.client
+            .from('password_entries')
+            .insert(entryData);
       }
 
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _deleteEntry() {
+  Future<void> _deleteEntry() async {
     if (widget.entry != null) {
-      showDialog(
+      final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Delete Password?'),
           content: const Text('Are you sure you want to delete this password? This action cannot be undone.'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                _dataService.deleteEntry(widget.entry!.id);
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Close screen
-              },
+              onPressed: () => Navigator.pop(context, true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Delete'),
             ),
           ],
         ),
       );
+
+      if (confirmed == true) {
+        try {
+          await Supabase.instance.client
+              .from('password_entries')
+              .delete()
+              .eq('id', widget.entry!.id);
+
+          if (mounted) Navigator.pop(context);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to delete: $e')),
+            );
+          }
+        }
+      }
     }
   }
 
@@ -142,11 +169,17 @@ class _AddEditPasswordScreenState extends State<AddEditPasswordScreen> {
               tooltip: 'Delete',
             ),
           TextButton(
-            onPressed: _saveEntry,
-            child: const Text(
-              'Save',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            onPressed: _isLoading ? null : _saveEntry,
+            child: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text(
+                    'Save',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
           ),
           const SizedBox(width: 8),
         ],

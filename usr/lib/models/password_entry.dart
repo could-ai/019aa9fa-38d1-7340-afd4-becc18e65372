@@ -21,6 +21,32 @@ class PasswordEntry {
     Color? categoryColor,
   }) : categoryColor = categoryColor ?? Colors.blue;
 
+  factory PasswordEntry.fromJson(Map<String, dynamic> json) {
+    return PasswordEntry(
+      id: json['id'].toString(),
+      title: json['title'],
+      username: json['username'],
+      password: json['password'],
+      url: json['url'],
+      notes: json['notes'],
+      createdAt: DateTime.parse(json['created_at']),
+      categoryColor: Color(int.parse(json['category_color'], radix: 16)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'username': username,
+      'password': password,
+      'url': url,
+      'notes': notes,
+      'created_at': createdAt.toIso8601String(),
+      'category_color': categoryColor.value.toRadixString(16).padLeft(8, '0'),
+    };
+  }
+
   PasswordEntry copyWith({
     String? id,
     String? title,

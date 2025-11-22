@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -8,25 +9,43 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _pinController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLogin = true;
+  bool _isLoading = false;
   bool _isObscured = true;
 
-  // For demo purposes, the master password is "1234"
-  static const String _masterPassword = '1234';
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      if (_pinController.text == _masterPassword) {
-        Navigator.pushReplacementNamed(context, '/home');
+    setState(() => _isLoading = true);
+
+    try {
+      if (_isLogin) {
+        await Supabase.instance.client.auth.signInWithPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
       } else {
+        await Supabase.instance.client.auth.signUp(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Check your email to verify your account')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid Master Password'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(e.toString())),
         );
       }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -45,13 +64,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Icon(
-                    Icons.lock_outline_rounded,
+                    Icons.lock_person_rounded,
                     size: 80,
                     color: Colors.deepPurple,
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    'Welcome Back',
+                    'Passwords',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -59,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Enter your master password to access your vault.',
+                    _isLogin ? 'Sign in to access your passwords' : 'Create your account',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -67,13 +86,33 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 48),
                   TextFormField(
-                    controller: _pinController,
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      hintText: 'Enter your email',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _passwordController,
                     obscureText: _isObscured,
                     decoration: InputDecoration(
-                      labelText: 'Master Password',
-                      hintText: 'Enter 1234 for demo',
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
                       border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.key),
+                      prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _isObscured ? Icons.visibility : Icons.visibility_off,
@@ -89,17 +128,33 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
                       }
+                      if (!_isLogin && value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
                       return null;
                     },
-                    onFieldSubmitted: (_) => _login(),
+                    onFieldSubmitted: (_) => _submit(),
                   ),
                   const SizedBox(height: 24),
                   FilledButton(
-                    onPressed: _login,
+                    onPressed: _isLoading ? null : _submit,
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('Unlock Vault'),
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : Text(_isLogin ? 'Sign In' : 'Sign Up'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _isLogin = !_isLogin;
+                      });
+                    },
+                    child: Text(
+                      _isLogin ? 'Need an account? Sign up' : 'Already have an account? Sign in',
+                    ),
                   ),
                 ],
               ),

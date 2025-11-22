@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/theme_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://mqlakbjbvkvkuyvbhiwk.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbGFrYmpidmt2a3V5dmJoaXdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NTI4MzYsImV4cCI6MjA3OTMyODgzNn0.cCznk6VZRLhXPNrcIsRdvwyYx2DHd-V0T9L15AdQemI',
+  );
+
   runApp(const PasswordManagerApp());
 }
 
@@ -18,7 +26,7 @@ class PasswordManagerApp extends StatelessWidget {
       listenable: themeService,
       builder: (context, _) {
         return MaterialApp(
-          title: 'Password Manager',
+          title: 'Passwords',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
@@ -94,11 +102,21 @@ class PasswordManagerApp extends StatelessWidget {
           themeMode: themeService.themeMode,
           initialRoute: '/',
           routes: {
-            '/': (context) => const LoginScreen(),
+            '/': (context) => const AuthWrapper(),
             '/home': (context) => const HomeScreen(),
           },
         );
       },
     );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final session = Supabase.instance.client.auth.currentSession;
+    return session != null ? const HomeScreen() : const LoginScreen();
   }
 }

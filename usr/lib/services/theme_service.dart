@@ -5,7 +5,7 @@ class ThemeService extends ChangeNotifier {
   factory ThemeService() => _instance;
   ThemeService._internal();
 
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light; // Changed default to light
   ThemeMode get themeMode => _themeMode;
 
   void setThemeMode(ThemeMode mode) {

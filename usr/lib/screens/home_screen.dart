@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/password_entry.dart';
-import '../services/mock_data_service.dart';
 import 'add_edit_password_screen.dart';
 import 'settings_screen.dart';
 
@@ -13,33 +12,50 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final MockDataService _dataService = MockDataService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  List<PasswordEntry> _entries = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _dataService.addListener(_onDataChanged);
     _searchController.addListener(_onSearchChanged);
+    _loadEntries();
   }
 
   @override
   void dispose() {
-    _dataService.removeListener(_onDataChanged);
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
-  }
-
-  void _onDataChanged() {
-    setState(() {});
   }
 
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text.toLowerCase();
     });
+  }
+
+  Future<void> _loadEntries() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('password_entries')
+          .select()
+          .order('created_at', ascending: false);
+
+      setState(() {
+        _entries = response.map((json) => PasswordEntry.fromJson(json)).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load passwords: $e')),
+        );
+      }
+    }
   }
 
   void _copyToClipboard(String value, String label) {
@@ -59,15 +75,14 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) => const AddEditPasswordScreen(),
       ),
-    );
+    ).then((_) => _loadEntries());
   }
 
   List<PasswordEntry> get _filteredEntries {
-    final entries = _dataService.entries;
     if (_searchQuery.isEmpty) {
-      return entries;
+      return _entries;
     }
-    return entries.where((entry) {
+    return _entries.where((entry) {
       return entry.title.toLowerCase().contains(_searchQuery) ||
           entry.username.toLowerCase().contains(_searchQuery) ||
           (entry.url?.toLowerCase().contains(_searchQuery) ?? false);
@@ -105,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'My Vault',
+                    'Passwords',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           letterSpacing: -0.5,
@@ -201,165 +216,167 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // 3. Password List
             Expanded(
-              child: entries.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            _searchQuery.isEmpty
-                                ? Icons.lock_open_rounded
-                                : Icons.search_off_rounded,
-                            size: 72,
-                            color: isDark ? Colors.grey[800] : Colors.grey[200],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _searchQuery.isEmpty
-                                ? 'Your vault is empty'
-                                : 'No matches found',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.grey[500],
-                                ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                      itemCount: entries.length,
-                      itemBuilder: (context, index) {
-                        final entry = entries[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(isDark ? 0.15 : 0.03),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : entries.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _searchQuery.isEmpty
+                                    ? Icons.lock_open_rounded
+                                    : Icons.search_off_rounded,
+                                size: 72,
+                                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _searchQuery.isEmpty
+                                    ? 'Your vault is empty'
+                                    : 'No matches found',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: Colors.grey[500],
+                                    ),
                               ),
                             ],
                           ),
-                          clipBehavior: Clip.hardEdge,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddEditPasswordScreen(entry: entry),
-                                ),
-                              );
-                            },
-                            child: IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  // Slim Color Tag (Left Side)
-                                  Container(
-                                    width: 6,
-                                    color: entry.categoryColor,
-                                  ),
-                                  // Content
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(18.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      entry.title,
-                                                      style: TextStyle(
-                                                        fontSize: 17,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: isDark
-                                                            ? Colors.white
-                                                            : Colors.black87,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      entry.username,
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: Colors.grey[600],
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              // Copy Button
-                                              IconButton(
-                                                icon: const Icon(Icons.copy_rounded, size: 20),
-                                                color: Colors.grey[400],
-                                                tooltip: 'Copy password',
-                                                onPressed: () =>
-                                                    _copyToClipboard(entry.password, 'Password'),
-                                              ),
-                                            ],
-                                          ),
-                                          if (entry.url != null && entry.url!.isNotEmpty) ...[
-                                            const SizedBox(height: 12),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: isDark
-                                                    ? Colors.grey[850]
-                                                    : const Color(0xFFF5F7FA),
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.link_rounded,
-                                                    size: 14,
-                                                    color: Colors.grey[500],
-                                                  ),
-                                                  const SizedBox(width: 6),
-                                                  Flexible(
-                                                    child: Text(
-                                                      entry.url!
-                                                          .replaceFirst(RegExp(r'^https?://'), '')
-                                                          .replaceAll(RegExp(r'/$'), ''),
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey[600],
-                                                        fontWeight: FontWeight.w500,
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                          itemCount: entries.length,
+                          itemBuilder: (context, index) {
+                            final entry = entries[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(isDark ? 0.15 : 0.03),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                              clipBehavior: Clip.hardEdge,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AddEditPasswordScreen(entry: entry),
+                                    ),
+                                  ).then((_) => _loadEntries());
+                                },
+                                child: IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      // Slim Color Tag (Left Side)
+                                      Container(
+                                        width: 6,
+                                        color: entry.categoryColor,
+                                      ),
+                                      // Content
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(18.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          entry.title,
+                                                          style: TextStyle(
+                                                            fontSize: 17,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: isDark
+                                                                ? Colors.white
+                                                                : Colors.black87,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 4),
+                                                        Text(
+                                                          entry.username,
+                                                          style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors.grey[600],
+                                                          ),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  // Copy Button
+                                                  IconButton(
+                                                    icon: const Icon(Icons.copy_rounded, size: 20),
+                                                    color: Colors.grey[400],
+                                                    tooltip: 'Copy password',
+                                                    onPressed: () =>
+                                                        _copyToClipboard(entry.password, 'Password'),
+                                                  ),
+                                                ],
+                                              ),
+                                              if (entry.url != null && entry.url!.isNotEmpty) ...[
+                                                const SizedBox(height: 12),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: isDark
+                                                        ? Colors.grey[850]
+                                                        : const Color(0xFFF5F7FA),
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.link_rounded,
+                                                        size: 14,
+                                                        color: Colors.grey[500],
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Flexible(
+                                                        child: Text(
+                                                          entry.url!
+                                                              .replaceFirst(RegExp(r'^https?://'), '')
+                                                              .replaceAll(RegExp(r'/$'), ''),
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.grey[600],
+                                                            fontWeight: FontWeight.w500,
+                                                          ),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
             ),
           ],
         ),
