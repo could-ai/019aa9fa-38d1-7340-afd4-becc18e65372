@@ -47,7 +47,8 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
           // Updated redirect URL for email confirmation
-          emailRedirectTo: 'https://i.could.ai/?019aa9fa-38d1-7340-afd4-becc18e65372',
+          // emailRedirectTo: 'https://i.could.ai/?019aa9fa-38d1-7340-afd4-becc18e65372',
+          emailRedirectTo: kIsWeb ? null : 'io.supabase.passwords://login-callback/',
         );
 
         // Check if session is established immediately (e.g. "Confirm Email" is disabled in Supabase)
