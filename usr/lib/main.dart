@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'integrations/supabase.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/theme_service.dart';
@@ -8,8 +9,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: 'https://mqlakbjbvkvkuyvbhiwk.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbGFrYmpidmt2a3V5dmJoaXdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NTI4MzYsImV4cCI6MjA3OTMyODgzNn0.cCznk6VZRLhXPNrcIsRdvwyYx2DHd-V0T9L15AdQemI',
+    url: SupabaseConfig.supabaseUrl,
+    anonKey: SupabaseConfig.supabaseAnonKey,
   );
 
   runApp(const PasswordManagerApp());
@@ -104,6 +105,7 @@ class PasswordManagerApp extends StatelessWidget {
           routes: {
             '/': (context) => const AuthWrapper(),
             '/home': (context) => const HomeScreen(),
+            '/login': (context) => const LoginScreen(),
           },
         );
       },
@@ -119,16 +121,19 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting && 
-            Supabase.instance.client.auth.currentSession == null) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           // Show a loading screen while checking initial auth state
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
         
-        final session = snapshot.data?.session ?? Supabase.instance.client.auth.currentSession;
-        return session != null ? const HomeScreen() : const LoginScreen();
+        final session = snapshot.data?.session;
+        if (session != null) {
+          return const HomeScreen();
+        } else {
+          return const LoginScreen();
+        }
       },
     );
   }

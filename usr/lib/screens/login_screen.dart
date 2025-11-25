@@ -46,10 +46,12 @@ class _LoginScreenState extends State<LoginScreen> {
         final AuthResponse res = await Supabase.instance.client.auth.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
-          // On mobile, null relies on the Supabase project's Site URL.
-          // If the user clicks the link and gets a localhost error, the verification 
-          // usually still counts, they just need to return to the app to login.
-          emailRedirectTo: kIsWeb ? Uri.base.origin : null,
+          // This is crucial for email confirmation links to work.
+          // On mobile, this can be a deep link. For web, it's the current page.
+          // If your Supabase project's "Site URL" is not configured (e.g., set to localhost),
+          // the link in the confirmation email might not work, but the registration
+          // often still succeeds. The user just needs to return to the app and log in.
+          emailRedirectTo: kIsWeb ? null : 'io.supabase.passwords://login-callback/',
         );
 
         // Check if session is established immediately (e.g. "Confirm Email" is disabled in Supabase)
@@ -70,8 +72,15 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         }
       }
-    } catch (e) {
+    } on AuthException catch (e) {
       if (mounted) {
+        // Print the detailed error to the console for debugging
+        debugPrint('Supabase Auth Error: ${e.message}');
+        _handleAuthError(e);
+      }
+    } catch (e) {
+       if (mounted) {
+        debugPrint('Generic Error: $e');
         _handleAuthError(e);
       }
     } finally {
@@ -103,18 +112,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
               const Text(
-                '1. Check your email inbox (and spam folder).',
+                'Please check your email inbox (and spam folder) and click the confirmation link to activate your account.',
                 style: TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '2. Click the confirmation link.',
-                style: TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '3. Return to this app and sign in.',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Container(
@@ -125,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: Border.all(color: Colors.amber.withOpacity(0.5)),
                 ),
                 child: const Text(
-                  'Note: If the link opens a page with an error, your account is likely still verified. Just come back here and log in.',
+                  'After clicking the link, please return to this app and sign in.',
                   style: TextStyle(fontSize: 12, color: Colors.black87),
                 ),
               ),
@@ -141,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 _passwordController.clear(); // Clear password for security
               });
             },
-            child: const Text('I Understand, Go to Login'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -149,21 +148,24 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleAuthError(Object e) {
-    String errorMessage = e.toString();
-    
-    // User-friendly error mapping
-    if (errorMessage.contains('Exception:')) {
-      errorMessage = errorMessage.replaceAll('Exception:', '').trim();
-    }
-    
-    if (errorMessage.contains('Email not confirmed')) {
-      errorMessage = 'Please verify your email address before signing in.';
-    } else if (errorMessage.contains('Invalid login credentials')) {
-      errorMessage = 'Incorrect email or password.';
-    } else if (errorMessage.contains('User already registered')) {
-      errorMessage = 'This email is already in use. Please sign in instead.';
-    } else if (errorMessage.contains('network')) {
-      errorMessage = 'Network error. Please check your internet connection.';
+    String title = 'Error';
+    String message = 'An unexpected error occurred. Please try again.';
+
+    if (e is AuthException) {
+      title = 'Authentication Error';
+      if (e.message.contains('User already registered')) {
+        message = 'This email is already in use. Please sign in instead.';
+      } else if (e.message.contains('Invalid login credentials')) {
+        message = 'Incorrect email or password. Please try again.';
+      } else if (e.message.contains('Email not confirmed')) {
+        message = 'Please verify your email address before signing in. Check your inbox for the confirmation link.';
+      } else if (e.message.contains('Password should be at least 6 characters')) {
+        message = 'Your password must be at least 6 characters long.';
+      } else if (e.message.contains('network')) {
+        message = 'A network error occurred. Please check your internet connection and try again.';
+      } else {
+        message = e.message; // Show the raw message for other cases
+      }
     }
 
     // Show error dialog instead of snackbar for better visibility
@@ -174,10 +176,10 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Icon(Icons.error_outline, color: Colors.red[700]),
             const SizedBox(width: 8),
-            const Text('Error'),
+            Text(title),
           ],
         ),
-        content: Text(errorMessage),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
