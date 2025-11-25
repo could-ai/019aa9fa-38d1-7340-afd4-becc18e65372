@@ -46,12 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
         final AuthResponse res = await Supabase.instance.client.auth.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
-          // This is crucial for email confirmation links to work.
-          // On mobile, this can be a deep link. For web, it's the current page.
-          // If your Supabase project's "Site URL" is not configured (e.g., set to localhost),
-          // the link in the confirmation email might not work, but the registration
-          // often still succeeds. The user just needs to return to the app and log in.
-          emailRedirectTo: kIsWeb ? null : 'io.supabase.passwords://login-callback/',
+          // Updated redirect URL for email confirmation
+          emailRedirectTo: 'https://i.could.ai/?019aa9fa-38d1-7340-afd4-becc18e65372',
         );
 
         // Check if session is established immediately (e.g. "Confirm Email" is disabled in Supabase)
@@ -178,8 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(width: 8),
             Text(title),
           ],
-        ),
-        content: Text(message),
+        ),n        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
