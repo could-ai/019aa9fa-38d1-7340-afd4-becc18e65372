@@ -174,7 +174,8 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(width: 8),
             Text(title),
           ],
-        ),n        content: Text(message),
+        ),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
